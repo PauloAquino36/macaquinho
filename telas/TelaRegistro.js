@@ -1,20 +1,20 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, Linking, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
-const Roleta = () => {
+const TelaRegistro = () => {
   const navigation = useNavigation();
-
 
   return (
         <View style={styles.container}>
-        <Image source={require('../../assets/logo.png')} style={styles.logo}></Image>
-
-        <Text style={styles.contato}>Roleta:</Text>
+        <Image source={require('../assets/logo.png')} style={styles.logo}></Image>
+            
         <View style={styles.detalhes}>
+
         </View>
       </View>
+    
   );
 };
 
@@ -26,13 +26,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#6E1385',
   },
-  contato:{
-    textAlign: 'center',
-    fontFamily: 'monospace',
-    color: "#fff",
-    fontSize: 25,
-    textDecorationLine: 'underline',
-  },
   detalhes: {
     width: "90%",
     height: "50%",
@@ -40,18 +33,22 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: "1%",
+    position: "absolute",
+    top: "50%",
     //
     //borderColor: "green",
     //borderWidth: 1,
   },
   logo: {
+    position: "absolute",
+    top: "5%",
     width: "85%",
     height: "10%",
-    marginVertical: "10%",
+    marginVertical: "5%",
     //
     //borderColor: "red",
     //borderWidth: 1,
   },
 });
 
-export default Roleta;
+export default TelaRegistro;

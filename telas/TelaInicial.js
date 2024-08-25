@@ -7,8 +7,8 @@ const games = [
   { id: '1', src: require('../assets/jogos/roleta.png') },
   { id: '2', src: require('../assets/jogos/slot.png') },
   { id: '3', src: require('../assets/jogos/ppt.png') },
-  { id: '4', src: require('../assets/jogos/roleta.png') },
-  { id: '5', src: require('../assets/jogos/slot.png') },
+  { id: '4', src: require('../assets/jogos/cassino.png') },
+  { id: '5', src: require('../assets/jogos/foguete.png') },
   { id: '6', src: require('../assets/jogos/ppt.png') },
 ];
 
@@ -23,6 +23,16 @@ const TelaInicial = () => {
     const DOUBLE_PRESS_DELAY = 300;
     if (lastTap && (now - lastTap) < DOUBLE_PRESS_DELAY) {
       setSelectedItemId(itemId);
+      switch (itemId) {
+        case '1':
+            navigation.navigate('Roleta');
+          break;
+          case '3':
+            navigation.navigate('PedraPapelTesoura');
+          break;
+        default:
+          break;
+      }
     } else {
       lastTap = now;
     }

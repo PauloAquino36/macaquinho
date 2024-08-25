@@ -14,7 +14,7 @@ const Navbar = () => {
       <TouchableOpacity style={styles.navButtonHome} onPress={() => navigation.navigate('TelaInicial')}>
         <Image source={require('../assets/botoes/macacode.png')} style={styles.botoesImg}></Image>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.navButton}>
+      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('TelaLogin')}>
         <Image source={require('../assets/botoes/sair.png')} style={styles.botoesImg}></Image>
       </TouchableOpacity>
 
@@ -28,8 +28,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     height: "10%",
     //
-    borderColor: "white",
-    borderWidth: 1,
+    //borderColor: "white",
+    //borderWidth: 1,
   },
   navButtonHome: {
     height: 100,
