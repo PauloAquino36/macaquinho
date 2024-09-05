@@ -1,25 +1,41 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../AuthContext';
 
 const Navbar = () => {
   const navigation = useNavigation();
   const { user, logout } = useAuth();
-  
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Confirmar Logout',
+      'Tem certeza de que deseja sair?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Sair',
+          onPress: () => logout(),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <View style={styles.navbar}>
-
-     <TouchableOpacity style={styles.navButton}>
-        <Image source={require('../assets/botoes/user.png')} style={styles.botoesImg}></Image>
+      <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('TelaGerenciamento')}>
+        <Image source={require('../assets/botoes/user.png')} style={styles.botoesImg} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.navButtonHome} onPress={() => navigation.navigate('TelaInicial')}>
-        <Image source={require('../assets/botoes/macacode.png')} style={styles.botoesImg}></Image>
+        <Image source={require('../assets/botoes/macacode.png')} style={styles.botoesImg} />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.navButton} onPress={logout}>
-        <Image source={require('../assets/botoes/sair.png')} style={styles.botoesImg}></Image>
+      <TouchableOpacity style={styles.navButton} onPress={handleLogout}>
+        <Image source={require('../assets/botoes/sair.png')} style={styles.botoesImg} />
       </TouchableOpacity>
-
     </View>
   );
 };

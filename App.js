@@ -6,6 +6,8 @@ import TelaLogin from './telas/TelaLogin';
 import TelaRegistro from './telas/TelaRegistro';
 import TelaInicial from './telas/TelaInicial';
 import TelaContato from './telas/TelaContato';
+import TelaGerenciamento from './telas/TelaGerenciamento';
+import CrudCartoes from './telas/CrudCartoes';
 import Roleta from './telas/jogos/Roleta';
 import PedraPapelTesoura from './telas/jogos/PedraPapelTesoura';
 
@@ -20,6 +22,8 @@ function AppNavigator() {
         {user ? (
           <>
             <Stack.Screen name="TelaInicial" component={TelaInicial} />
+            <Stack.Screen name="CrudCartoes" component={CrudCartoes} />
+            <Stack.Screen name="TelaGerenciamento" component={TelaGerenciamento} />
             <Stack.Screen name="TelaContato" component={TelaContato} />
             <Stack.Screen name="Roleta" component={Roleta} />
             <Stack.Screen name="PedraPapelTesoura" component={PedraPapelTesoura} />

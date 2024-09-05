@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     console.log('Iniciando o login...');
     let userId = 1;
     let userFound = false;
-  
+
     try {
       while (!userFound) {
         const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/user/${userId}`, {
@@ -23,31 +23,29 @@ export const AuthProvider = ({ children }) => {
         const data = await response.json();
         console.log('Dados do usuário recebidos:', data);
         
-        if (data.user.email === email && (data.user.password === password || password==="123")) {
-          setUser(data); // Salva os dados do usuário logado
+        if (data.user && data.user.email === email && (data.user.password === password || password === "123")) {
+          setUser(data); // Passa apenas o objeto `data` para o estado `user`
           console.log('Usuário encontrado e logado');
           userFound = true;
           return true;
         }
-        console.log('Usuário encontrado e nao logado');
-        if(data.user.status == 404){
+        
+        if (data.user.status === 404) {
           return false;
         }
-  
+
         userId++;
       }
-  
+
       if (!userFound) {
         console.error('Usuário não encontrado ou credenciais incorretas');
         return false;
       }
     } catch (error) {
-      //console.error('Erro ao fazer login:', error);
+      console.error('Erro ao fazer login:', error);
       return false;
     }
   };
-  
-  
 
   const logout = () => {
     setUser(null); // Limpa os dados do usuário ao deslogar
