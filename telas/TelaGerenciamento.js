@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import Navbar from './Navbar.js';
 import CrudCartoes from './CrudCartoes.js';
 import { useAuth } from '../AuthContext';
+import BtnSaldo from './BtnSaldo.js';
 
 const TelaGerenciamento = () => {
   const { user } = useAuth(); // Obtenha os dados do usuário do contexto
@@ -15,8 +16,11 @@ const TelaGerenciamento = () => {
 
   const [isEditing, setIsEditing] = useState(false);
 
+  ////
+  //const x = 100;
+  ////
+
   const handleUpdate = async () => {
-    
     try {
       const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/user/${user.user.id}`, {
         method: 'PUT',
@@ -29,12 +33,13 @@ const TelaGerenciamento = () => {
           phone_number: phoneNumber,
           email: email,
           birth_date: user.user.birth_date,
+          balance: 100.00,
         }),
       });
 
       const data = await response.json();
 
-      //console.log("Nome novo>>"+name);
+      console.log("saldo novo>>"+user.user.balance);
       //console.log("data>>"+user.user.birth_date);
       //console.log("email>>"+email);
       //console.log("resonse>>"+response.ok);
@@ -51,12 +56,20 @@ const TelaGerenciamento = () => {
     }
   };
 
-  const formatphone_number = (number) => {
-    const cleaned = ('' + number).replace(/\D/g, '');
-    if (cleaned.length === 11) {
-      return '(' + cleaned.slice(0, 2) + ') ' + cleaned.slice(2, 3) + ' ' + cleaned.slice(3, 7) + '-' + cleaned.slice(7);
+  const formatphone_number = (text) => {
+    const cleaned = text.replace(/[^0-9]/g, '');
+    let formatted = cleaned;
+
+    if (cleaned.length > 2) {
+      formatted = '(' + cleaned.slice(0, 2) + ') ' + cleaned.slice(2);
     }
-    return number;
+    if (cleaned.length > 3) {
+      formatted = '(' + cleaned.slice(0, 2) + ') ' + cleaned.slice(2, 3) + ' ' + cleaned.slice(3);
+    }
+    if (cleaned.length > 7) {
+      formatted = '(' + cleaned.slice(0, 2) + ') ' + cleaned.slice(2, 3) + ' ' + cleaned.slice(3, 7) + '-' + cleaned.slice(7, 11);
+    }
+    return formatted;
   };
 
   if (!user) {
@@ -85,7 +98,7 @@ const TelaGerenciamento = () => {
                 style={styles.input}
                 placeholder="Telefone"
                 value={phoneNumber}
-                onChangeText={(text) => setPhoneNumber(text)}
+                onChangeText={(text) => setPhoneNumber(formatphone_number(text))}
                 keyboardType="phone-pad"
               />
               <TextInput
@@ -123,10 +136,7 @@ const TelaGerenciamento = () => {
             <Image source={require('../assets/botoes/edit.png')} style={styles.botoesImg} />
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.saldoBtn}>
-        <Text style={styles.saldoTxt}>Saldo:</Text>
-        <Text style={styles.saldoTxt}>R${user.user.balance}</Text>
-      </TouchableOpacity>
+        <BtnSaldo/>
       </View>
       <CrudCartoes />
       <Navbar />
@@ -174,14 +184,14 @@ const styles = StyleSheet.create({
   editUser: {
     zIndex: 2,
     position: "relative",
-    left: "38%",
+    left: "45%",
     bottom: "20%",
     height: 100,
     width: 100,
   },
   botoesImg: {
-    height: "100%",
-    width: "100%",
+    height: 80,
+    width: 80,
   },
   infoText: {
     color: '#fff',

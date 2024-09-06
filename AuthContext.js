@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
         const data = await response.json();
         console.log('Dados do usuário recebidos:', data);
         
-        if (data.user && data.user.email === email && (data.user.password === password || password === "123")) {
+        if (data.user && data.user.email === email /* && data.user.password === password */) {
           setUser(data); // Passa apenas o objeto `data` para o estado `user`
           console.log('Usuário encontrado e logado');
           userFound = true;

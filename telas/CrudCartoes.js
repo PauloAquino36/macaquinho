@@ -191,7 +191,15 @@ const deletarCartao = (id) => {
             </TouchableOpacity>
           </View>
         )}
-
+        <TouchableOpacity style={styles.showFormButton} onPress={() => setFormVisible(!formVisible)}>
+          <Image
+            source={formVisible
+              ? require('../assets/botoes/close.png') // Imagem quando o formulário está visível
+              : require('../assets/botoes/plus.png')   // Imagem quando o formulário não está visível
+            }
+            style={styles.botoesImg2}
+          />
+        </TouchableOpacity>
         <FlatList
           data={cartoes}
           keyExtractor={(item) => item.id.toString()}
@@ -214,15 +222,6 @@ const deletarCartao = (id) => {
             </View>
           )}
         />
-                <TouchableOpacity style={styles.showFormButton} onPress={() => setFormVisible(!formVisible)}>
-          <Image
-            source={formVisible
-              ? require('../assets/botoes/close.png') // Imagem quando o formulário está visível
-              : require('../assets/botoes/plus.png')   // Imagem quando o formulário não está visível
-            }
-            style={styles.botoesImg}
-          />
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -298,8 +297,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   showFormButton: {
-    alignItems: "flex-end",
+ //   alignItems: "flex-end",
     marginBottom: 10,
+    position: 'absolute',
+    left: "90%",
+    bottom: "90%",
+  },
+  botoesImg2: {
+    width: 60,
+    height: 60,
   },
   toggleButton: {
     backgroundColor: '#D9D9D9',

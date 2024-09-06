@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Dimensions, Keyboard, Modal, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../AuthContext'; // Importa o contexto de autenticação
+
+const { width, height } = Dimensions.get('window');
 
 const TelaLogin = () => {
   const navigation = useNavigation();
@@ -9,9 +11,9 @@ const TelaLogin = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const handleLogin = async () => {
-  
     const success = await login({ email, password }); // Chama a função de login com as credenciais
   
     console.log('Resultado do login:', success); // Log do resultado
@@ -24,8 +26,21 @@ const TelaLogin = () => {
       alert('Login falhou. Verifique suas credenciais.');
     }
   };
-  
-  
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       <Image source={require('../assets/logo.png')} style={styles.logo} />
@@ -56,6 +71,12 @@ const TelaLogin = () => {
           <Text style={styles.registrarTxt}>Sou novo aqui...</Text>
         </TouchableOpacity>
       </View>
+
+      {keyboardVisible && (
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
+      )}
     </View>
   );
 };
@@ -68,66 +89,74 @@ const styles = StyleSheet.create({
     backgroundColor: '#6E1385',
   },
   detalhes: {
-    width: "90%",
-    height: "50%",
-    margin: "10%",
+    width: width * 0.9,
+    height: height * 0.4,
+    margin: width * 0.1,  // 10% da largura da tela
     justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: "1%",
-    position: "absolute",
+    padding: width * 0.01,
+    position: 'absolute',
     top: "50%",
   },
   logo: {
     position: "absolute",
-    top: "5%",
-    width: "85%",
-    height: "10%",
-    marginVertical: "5%",
+    top: height * 0.0,
+    width: width * 0.95,
+    height: height * 0.1,
+    marginTop: height * 0.05,
   },
   logo2: {
-    width: "60%",
-    height: "29%",
-    position: "absolute",
-    top: "20%",
+    width: width * 0.6,  
+    height: width * 0.6, 
+    position: 'absolute',
+    top: height * 0.17,
   },
   input: {
-    height: "15%",
-    width: "80%",
+    height: height * 0.07,
+    width: width * 0.8,
     color: "#1E1E1E",
     borderColor: '#FFF500',
     backgroundColor: '#D9D9D9',
-    borderWidth: 2,
+    borderWidth: 5,
     marginBottom: 20,
     paddingHorizontal: 10,
     borderRadius: 79,
-    fontSize: 25,
+    fontSize: width * 0.06,
+    zIndex: 2,
   },
   entrar: {
-    height: "15%",
-    width: "50%",
-    borderWidth: 2,
+    height: height * 0.09,
+    width: width * 0.4,
+    color: "#1E1E1E",
     borderColor: '#FFF500',
     backgroundColor: '#D9D9D9',
-    borderRadius: 79,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: "10%",
+    borderRadius: width * 0.2,
+    borderWidth: 5,
+    zIndex: 2,
   },
   entrarTxt: {
     color: "#1E1E1E",
-    fontSize: 40,
+    fontSize: width * 0.1,
   },
   registrar: {
-    fontSize: 26,
-    marginHorizontal: "20%",
-    position: "relative",
-    right: "26%",
+    fontSize: width * 0.065,  // Ajuste dinâmico da fonte
+    marginHorizontal: width * 0.2,
+    position: 'absolute',
+    top: height * 0.3,
+    right: width * 0.25,
   },
   registrarTxt: {
     color: "#FFCE07",
-    fontSize: 26,
+    fontSize: width * 0.065,
     textAlign: "right",
     textDecorationLine: 'underline',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Cor de sobreposição escura
+    zIndex: 1, // Garante que o overlay fique acima do conteúdo
   },
 });
 

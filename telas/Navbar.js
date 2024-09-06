@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Alert, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../AuthContext';
+
+const { width, height } = Dimensions.get('window');
 
 const Navbar = () => {
   const navigation = useNavigation();
@@ -44,35 +46,37 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: "10%",
+    height: height * 0.1,  // 10% da altura da tela
+    alignItems: 'flex-end'
     //
     //borderColor: "white",
     //borderWidth: 1,
   },
   navButtonHome: {
-    height: 100,
-    width: 100,
+    height: width * 0.27,  // ajuste proporcional para 100px
+    width: width * 0.27,    // ajuste proporcional para 100px
     position: "relative",
-    bottom: "5%",
-    marginHorizontal: "5%",
+    bottom: height * 0.05,  // 5% da altura da tela
+    marginHorizontal: width * 0.05,  // 5% da largura da tela
     //
     //borderColor: "green",
     //borderWidth: 1,
   },
   navButton: {
-    height: 75,
-    width: 75,
+    height: width * 0.2,  // ajuste proporcional para 75px
+    width: width * 0.2,     // ajuste proporcional para 75px
     //
     //borderColor: "green",
     //borderWidth: 1,
   },
   botoesImg: {
-    height: "100%",
-    width: "100%",
+    height: '100%',
+    width: '100%',
     //
     //borderColor: "red",
     //borderWidth: 1,
   },
 });
+
 
 export default Navbar;
