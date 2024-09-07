@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, Alert } from 'react';
 
 const AuthContext = createContext();
 
@@ -56,10 +56,13 @@ export const AuthProvider = ({ children }) => {
       ...prevState,
       user: {
         ...prevState.user,
-        ...updatedUser,
+        ...updatedUser.user, // Atualiza os dados do usuário
       },
+      credit_cards: updatedUser.credit_cards || prevState.credit_cards, // Atualiza os cartões de crédito
     }));
   };
+  
+  
 
   return (
     <AuthContext.Provider value={{ user, login, logout, updateUser }}>

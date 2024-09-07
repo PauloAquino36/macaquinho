@@ -6,7 +6,7 @@ import Navbar from './Navbar.js';
 const { width, height } = Dimensions.get('window');
 
 const CrudCartoes = () => {
-  const { user } = useAuth(); // Obtém o usuário autenticado
+  const { user, updateUser } = useAuth(); // Obtém o usuário autenticado
   const [cartoes, setCartoes] = useState([]);
   const [novoCartao, setNovoCartao] = useState({
     name: '',
@@ -86,6 +86,8 @@ const CrudCartoes = () => {
         carregarCartoes(); // Atualiza a lista de cartões após a adição
         setNovoCartao({ name: '', number: '', is_credit: true }); // Reseta os campos
         setFormVisible(false); // Oculta o formulário após a adição
+        atualizarCartao(); // Chama a função atualizaCartao
+        
       } else {
         Alert.alert('Erro', data.message || 'Não foi possível adicionar o cartão');
       }
@@ -93,6 +95,7 @@ const CrudCartoes = () => {
       Alert.alert('Erro', 'Erro ao adicionar o cartão');
     }
   };
+
 
   // Função para deletar um cartão
   const deletarCartao = (id) => {
@@ -139,39 +142,57 @@ const CrudCartoes = () => {
     setEditModalVisible(true);
   };
 
-  // Função para atualizar um cartão
-const atualizarCartao = async () => {
-  const numeroLimpo = cartaoEmEdicao.number.replace(/\D/g, '');
-  const bandeira = determinarBandeira(numeroLimpo);
-
-  try {
-    const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${cartaoEmEdicao.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        ...cartaoEmEdicao,
-        brand: bandeira,
-        user_id: user.user.id,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      Alert.alert('Sucesso', 'Cartão atualizado com sucesso');
-      carregarCartoes(); // Atualiza a lista de cartões após a atualização
-      setEditModalVisible(false); // Oculta o modal de edição
-    } else {
-      Alert.alert('Erro', data.message || 'Não foi possível atualizar o cartão');
+  const atualizarCartao = async () => {
+    if (!cartaoEmEdicao || !cartaoEmEdicao.number) {
+      Alert.alert('Erro', 'O número do cartão está indefinido');
+      return;
     }
-  } catch (error) {
-    Alert.alert('Erro', 'Erro ao atualizar o cartão');
-  }
-
-};
+  
+    const numeroLimpo = cartaoEmEdicao.number.replace(/\D/g, '');
+    const bandeira = determinarBandeira(numeroLimpo);
+    console.log("Atualizando o cartão com ID: ", cartaoEmEdicao.id);
+  
+    try {
+      const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${cartaoEmEdicao.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name: cartaoEmEdicao.name,
+          number: cartaoEmEdicao.number,
+          brand: bandeira,
+          is_credit: cartaoEmEdicao.is_credit,
+          user_id: user.user.id,
+        }),
+      });
+  
+      const data = await response.json();
+      console.log("Resposta da API:", data);
+  
+      if (response.ok) {
+        Alert.alert('Sucesso', 'Cartão atualizado com sucesso');
+  
+        const cartoesAtualizados = user.credit_cards.map(cartao =>
+          cartao.id === cartaoEmEdicao.id ? { ...cartaoEmEdicao, brand: bandeira } : cartao
+        );
+        console.log("Cartões atualizados localmente:", cartoesAtualizados);
+  
+        updateUser({
+          user: user.user, // Mantém as informações do usuário
+          credit_cards: cartoesAtualizados, // Atualiza a lista de cartões
+        });
+  
+        setEditModalVisible(false); // Fecha o modal de edição
+      } else {
+        Alert.alert('Erro', data.message || 'Não foi possível atualizar o cartão');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar o cartão:', error);
+      Alert.alert('Erro', 'Erro ao atualizar o cartão');
+    }
+  };
 
 
   const [modalVisible, setModalVisible] = useState(false); // Estado para controlar a visibilidade do modal
