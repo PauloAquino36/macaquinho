@@ -28,7 +28,8 @@ const TelaGerenciamento = () => {
     setEditModalVisible(false);
   };
 
-  // Função para atualizar os dados do usuário
+  const { updateUser } = useAuth(); // Importar a função updateUser do AuthContext
+
   const handleUpdate = async () => {
     try {
       const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/user/${user.user.id}`, {
@@ -50,6 +51,14 @@ const TelaGerenciamento = () => {
 
       if (response.ok) {
         Alert.alert('Sucesso', 'Dados atualizados com sucesso');
+
+        // Atualize o contexto com os novos dados
+        updateUser({
+          name: name,
+          phone_number: phoneNumber,
+          email: email,
+        });
+
         closeEditModal(); // Fecha o modal após a atualização
       } else {
         Alert.alert('Erro', data.message || 'Não foi possível atualizar os dados');
@@ -86,7 +95,7 @@ const TelaGerenciamento = () => {
   return (
     <View style={styles.container}>
       <Image source={require('../assets/logo.png')} style={styles.logo} />
-      
+
       <View style={styles.conta}>
         <View style={styles.DetalhesConta}>
           {!editModalVisible && (
@@ -281,13 +290,14 @@ const styles = StyleSheet.create({
   modalContent: {
     width: width * 0.9,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#3B1B4D',
     borderRadius: 10,
   },
   modalTitle: {
     fontSize: width * 0.05,
     fontWeight: 'bold',
     marginBottom: height * 0.02,
+    color: "gold"
   },
 });
 

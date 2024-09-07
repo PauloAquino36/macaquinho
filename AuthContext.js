@@ -51,8 +51,18 @@ export const AuthProvider = ({ children }) => {
     setUser(null); // Limpa os dados do usuário ao deslogar
   };
 
+  const updateUser = (updatedUser) => {
+    setUser((prevState) => ({
+      ...prevState,
+      user: {
+        ...prevState.user,
+        ...updatedUser,
+      },
+    }));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

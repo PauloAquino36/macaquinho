@@ -140,37 +140,38 @@ const CrudCartoes = () => {
   };
 
   // Função para atualizar um cartão
-  const atualizarCartao = async () => {
-    const numeroLimpo = cartaoEmEdicao.number.replace(/\D/g, '');
-    const bandeira = determinarBandeira(numeroLimpo);
+const atualizarCartao = async () => {
+  const numeroLimpo = cartaoEmEdicao.number.replace(/\D/g, '');
+  const bandeira = determinarBandeira(numeroLimpo);
 
-    try {
-      const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${cartaoEmEdicao.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          ...cartaoEmEdicao,
-          brand: bandeira,
-          user_id: user.user.id
-        }),
-      });
+  try {
+    const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${cartaoEmEdicao.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        ...cartaoEmEdicao,
+        brand: bandeira,
+        user_id: user.user.id,
+      }),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.ok) {
-        Alert.alert('Sucesso', 'Cartão atualizado com sucesso');
-        carregarCartoes(); // Atualiza a lista de cartões após a atualização
-        setEditModalVisible(false); // Oculta o modal de edição
-      } else {
-        Alert.alert('Erro', data.message || 'Não foi possível atualizar o cartão');
-      }
-    } catch (error) {
-      Alert.alert('Erro', 'Erro ao atualizar o cartão');
+    if (response.ok) {
+      Alert.alert('Sucesso', 'Cartão atualizado com sucesso');
+      carregarCartoes(); // Atualiza a lista de cartões após a atualização
+      setEditModalVisible(false); // Oculta o modal de edição
+    } else {
+      Alert.alert('Erro', data.message || 'Não foi possível atualizar o cartão');
     }
-  };
+  } catch (error) {
+    Alert.alert('Erro', 'Erro ao atualizar o cartão');
+  }
+
+};
 
 
   const [modalVisible, setModalVisible] = useState(false); // Estado para controlar a visibilidade do modal
