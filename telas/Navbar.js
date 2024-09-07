@@ -47,7 +47,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     height: height * 0.1,  // 10% da altura da tela
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
+    marginBottom: "1%"
     //
     //borderColor: "white",
     //borderWidth: 1,
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
     height: width * 0.27,  // ajuste proporcional para 100px
     width: width * 0.27,    // ajuste proporcional para 100px
     position: "relative",
-    bottom: height * 0.05,  // 5% da altura da tela
+    bottom: height * 0.0001,  // 5% da altura da tela
     marginHorizontal: width * 0.05,  // 5% da largura da tela
     //
     //borderColor: "green",

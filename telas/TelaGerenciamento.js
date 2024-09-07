@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Alert, Dimensions, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Navbar from './Navbar.js';
 import CrudCartoes from './CrudCartoes.js';
 import { useAuth } from '../AuthContext';
 import BtnSaldo from './BtnSaldo.js';
+
+const { width, height } = Dimensions.get('window');
 
 const TelaGerenciamento = () => {
   const { user } = useAuth(); // Obtenha os dados do usuário do contexto
@@ -14,12 +16,19 @@ const TelaGerenciamento = () => {
   const [phoneNumber, setPhoneNumber] = useState(user.user.phone_number);
   const [email, setEmail] = useState(user.user.email);
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
-  ////
-  //const x = 100;
-  ////
+  // Função para abrir o modal de edição
+  const openEditModal = () => {
+    setEditModalVisible(true);
+  };
 
+  // Função para fechar o modal de edição
+  const closeEditModal = () => {
+    setEditModalVisible(false);
+  };
+
+  // Função para atualizar os dados do usuário
   const handleUpdate = async () => {
     try {
       const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/user/${user.user.id}`, {
@@ -39,17 +48,11 @@ const TelaGerenciamento = () => {
 
       const data = await response.json();
 
-      console.log("saldo novo>>"+user.user.balance);
-      //console.log("data>>"+user.user.birth_date);
-      //console.log("email>>"+email);
-      //console.log("resonse>>"+response.ok);
-
-
       if (response.ok) {
         Alert.alert('Sucesso', 'Dados atualizados com sucesso');
-        setIsEditing(false);
+        closeEditModal(); // Fecha o modal após a atualização
       } else {
-        Alert.alert('Erro aqui', data.message || 'Não foi possível atualizar os dados');
+        Alert.alert('Erro', data.message || 'Não foi possível atualizar os dados');
       }
     } catch (error) {
       Alert.alert('Erro', 'Erro ao atualizar os dados');
@@ -86,38 +89,7 @@ const TelaGerenciamento = () => {
       
       <View style={styles.conta}>
         <View style={styles.DetalhesConta}>
-          {isEditing ? (
-            <>
-              <TextInput
-                style={styles.input}
-                placeholder="Nome"
-                value={name}
-                onChangeText={setName}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Telefone"
-                value={phoneNumber}
-                onChangeText={(text) => setPhoneNumber(formatphone_number(text))}
-                keyboardType="phone-pad"
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={(text) => setEmail(text)}
-                keyboardType="email-address"
-              />
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.saveButton} onPress={handleUpdate}>
-                  <Text style={styles.buttonText}>Salvar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.cancelButton} onPress={() => setIsEditing(false)}>
-                  <Text style={styles.buttonText}>Cancelar</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : (
+          {!editModalVisible && (
             <>
               <Text style={styles.infoText}>
                 Nome: {user.user.name}
@@ -131,15 +103,54 @@ const TelaGerenciamento = () => {
             </>
           )}
         </View>
-        {!isEditing && (
-          <TouchableOpacity style={styles.editUser} onPress={() => setIsEditing(true)}>
-            <Image source={require('../assets/botoes/edit.png')} style={styles.botoesImg} />
-          </TouchableOpacity>
-        )}
-        <BtnSaldo/>
+        <TouchableOpacity style={styles.editUser} onPress={openEditModal}>
+          <Image source={require('../assets/botoes/edit.png')} style={styles.botoesImg} />
+        </TouchableOpacity>
+        <BtnSaldo />
       </View>
       <CrudCartoes />
       <Navbar />
+
+      <Modal
+        visible={editModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeEditModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Editar Dados do Usuário</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nome"
+              value={name}
+              onChangeText={setName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Telefone"
+              value={phoneNumber}
+              onChangeText={(text) => setPhoneNumber(formatphone_number(text))}
+              keyboardType="phone-pad"
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.saveButton} onPress={handleUpdate}>
+                <Text style={styles.buttonText}>Salvar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.cancelButton} onPress={closeEditModal}>
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -154,102 +165,102 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   conta: {
-    width: "90%",
-    height: "30%",
-    margin: "1%",
+    width: width * 0.9,
+    height: height * 0.3,
+    margin: width * 0.01,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: "1%",
+    padding: width * 0.01,
     borderRadius: 25,
     borderColor: "red",
     borderWidth: 1,
   },
   DetalhesConta: {
-    width: "100%",
-    padding: "2%",
+    width: '100%',
+    padding: width * 0.02,
     backgroundColor: "#1E062B",
     borderRadius: 25,
     borderColor: "#FAFF00",
     borderWidth: 1,
     zIndex: 1,
-    marginBottom: 10, // Espaçamento entre detalhes e botão de edição
+    marginBottom: height * 0.01, // Espaçamento entre detalhes e botão de edição
   },
   logo: {
-    marginTop: "5%",
-    width: "85%",
-    height: "10%",
+    marginTop: height * 0.05,
+    width: width * 0.85,
+    height: height * 0.1,
     borderColor: "green",
     borderWidth: 1,
   },
   editUser: {
     zIndex: 2,
     position: "relative",
-    left: "45%",
-    bottom: "20%",
-    height: 100,
-    width: 100,
+    left: width * 0.37,
+    bottom: height * 0.1,
+    height: width * 0.25,
+    width: width * 0.25,
   },
   botoesImg: {
-    height: 80,
-    width: 80,
+    height: width * 0.2,
+    width: width * 0.2,
   },
   infoText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: width * 0.045,
     marginBottom: 5,
   },
   input: {
-    height: 40,
+    height: height * 0.05,
     width: '100%',
     borderColor: '#FFF500',
     borderWidth: 1,
     backgroundColor: '#D9D9D9',
     borderRadius: 5,
-    marginBottom: 10,
+    marginBottom: height * 0.01,
     paddingHorizontal: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginTop: 10,
+    marginHorizontal: width * 0.05,
+    marginTop: height * 0.01,
   },
   saveButton: {
     backgroundColor: '#4CAF50',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: height * 0.02,
+    paddingHorizontal: width * 0.05,
     borderRadius: 5,
   },
   cancelButton: {
     backgroundColor: '#f44336',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: height * 0.02,
+    paddingHorizontal: width * 0.05,
     borderRadius: 5,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
   saldoBtn: {
     backgroundColor: '#FFCE07',
     borderRadius: 25,
     flexDirection: 'column',
-    justifyContent:  'center',
+    justifyContent: 'center',
     alignItems: 'center',
-    height: 78,
-    width: 148,
+    height: height * 0.1,
+    width: width * 0.4,
     position: 'absolute',
-    bottom: "15%",
+    bottom: height * 0.15,
     zIndex: 0,
   },
   saldoTxt: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: width * 0.05,
   },
   pagamentos: {
-    width: "80%",
-    marginVertical: "10%",
-    padding: "2%",
+    width: width * 0.8,
+    marginVertical: height * 0.1,
+    padding: width * 0.02,
     backgroundColor: "#1E062B",
     borderRadius: 25,
     borderColor: "#FAFF00",
@@ -257,9 +268,27 @@ const styles = StyleSheet.create({
   },
   pagamentosTxt: {
     color: '#fff',
-    fontSize: 20,
-    textAlign: 'center'
-  }
+    fontSize: width * 0.05,
+    textAlign: 'center',
+    marginBottom: height * 0.02,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+  },
+  modalContent: {
+    width: width * 0.9,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: width * 0.05,
+    fontWeight: 'bold',
+    marginBottom: height * 0.02,
+  },
 });
 
 export default TelaGerenciamento;

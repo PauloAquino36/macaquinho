@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Alert, FlatList, TextInput, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert, FlatList, TextInput, Image, Dimensions, Modal } from 'react-native';
 import { useAuth } from '../AuthContext.js';
 import Navbar from './Navbar.js';
+
+const { width, height } = Dimensions.get('window');
 
 const CrudCartoes = () => {
   const { user } = useAuth(); // Obtém o usuário autenticado
@@ -15,7 +17,7 @@ const CrudCartoes = () => {
 
   // Função para determinar a bandeira do cartão com base no número
   const determinarBandeira = (numero) => {
-    
+
     switch (true) {
 
       case numero.startsWith('4'):
@@ -26,23 +28,23 @@ const CrudCartoes = () => {
         return 'American Express';
       case numero.startsWith('6'):
         return 'Discover';
-      case numero.startsWith('1') || numero.startsWith('2') || numero.startsWith('3') || numero.startsWith('7') || numero.startsWith('8')  || numero.startsWith('9'):
+      case numero.startsWith('1') || numero.startsWith('2') || numero.startsWith('3') || numero.startsWith('7') || numero.startsWith('8') || numero.startsWith('9'):
         return 'CodeCard';
       default:
         return '';
     }
   };
-  
+
   const formatarNumeroCartao = (numero) => {
     // Remove todos os caracteres que não são números
     const numeros = numero.replace(/\D/g, '');
-  
+
     // Adiciona hífens a cada quatro dígitos
     const formato = numeros.replace(/(\d{4})(?=\d)/g, '$1-');
-  
+
     return formato;
   };
-  
+
   // Função para carregar os cartões de crédito do usuário
   const carregarCartoes = () => {
     if (user && user.credit_cards) {
@@ -54,15 +56,15 @@ const CrudCartoes = () => {
 
   const adicionarCartao = async () => {
     const numeroLimpo = novoCartao.number.replace(/\D/g, '');
-  
+
     if (!novoCartao.is_credit && numeroLimpo.length !== 12) {
       Alert.alert('Erro', 'O número do cartão deve ter 12 dígitos.');
       return;
     }
-  
+
     // Determina a bandeira do cartão
     const bandeira = determinarBandeira(numeroLimpo);
-  
+
     try {
       const response = await fetch('https://treinamentoapi.codejr.com.br/api/paulo/creditCard', {
         method: 'POST',
@@ -70,15 +72,15 @@ const CrudCartoes = () => {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify({ 
-          ...novoCartao, 
-          brand: bandeira, 
-          user_id: user.user.id 
+        body: JSON.stringify({
+          ...novoCartao,
+          brand: bandeira,
+          user_id: user.user.id
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         Alert.alert('Sucesso', 'Cartão adicionado com sucesso');
         carregarCartoes(); // Atualiza a lista de cartões após a adição
@@ -91,51 +93,93 @@ const CrudCartoes = () => {
       Alert.alert('Erro', 'Erro ao adicionar o cartão');
     }
   };
-  
+
   // Função para deletar um cartão
-const deletarCartao = (id) => {
-  Alert.alert(
-    'Confirmar Exclusão',
-    'Tem certeza de que deseja excluir este cartão?',
-    [
-      {
-        text: 'Cancelar',
-        style: 'cancel',
-      },
-      {
-        text: 'Excluir',
-        onPress: async () => {
-          try {
-            const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${id}`, {
-              method: 'DELETE',
-            });
-
-            if (response.ok) {
-              Alert.alert('Sucesso', 'Cartão deletado com sucesso');
-              carregarCartoes(); // Atualiza a lista de cartões após a exclusão
-            } else {
-              const data = await response.json();
-              Alert.alert('Erro', data.message || 'Não foi possível deletar o cartão');
-            }
-          } catch (error) {
-            Alert.alert('Erro', 'Erro ao deletar o cartão');
-          }
+  const deletarCartao = (id) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      'Tem certeza de que deseja excluir este cartão?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
         },
-      },
-    ],
-    { cancelable: true }
-  );
-};
+        {
+          text: 'Excluir',
+          onPress: async () => {
+            try {
+              const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${id}`, {
+                method: 'DELETE',
+              });
 
-
-  // Função para editar um cartão (exemplo)
-  const editarCartao = (id) => {
-    Alert.alert('Editar', `Editar cartão com ID ${id}`);
+              if (response.ok) {
+                Alert.alert('Sucesso', 'Cartão deletado com sucesso');
+                carregarCartoes(); // Atualiza a lista de cartões após a exclusão
+              } else {
+                const data = await response.json();
+                Alert.alert('Erro', data.message || 'Não foi possível deletar o cartão');
+              }
+            } catch (error) {
+              Alert.alert('Erro', 'Erro ao deletar o cartão');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
-  // Função para exibir detalhes de um cartão (exemplo)
-  const detalhesCartao = (id) => {
-    Alert.alert('Detalhes', `Detalhes do cartão com ID ${id}`);
+
+  const [editModalVisible, setEditModalVisible] = useState(false); // Estado para controlar a visibilidade do modal de edição
+  const [cartaoEmEdicao, setCartaoEmEdicao] = useState(null); // Cartão sendo editado
+
+  // Função para abrir o modal de edição com os dados do cartão selecionado
+  const editarCartao = (cartao) => {
+    setCartaoEmEdicao(cartao);
+    setEditModalVisible(true);
+  };
+
+  // Função para atualizar um cartão
+  const atualizarCartao = async () => {
+    const numeroLimpo = cartaoEmEdicao.number.replace(/\D/g, '');
+    const bandeira = determinarBandeira(numeroLimpo);
+
+    try {
+      const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${cartaoEmEdicao.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          ...cartaoEmEdicao,
+          brand: bandeira,
+          user_id: user.user.id
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert('Sucesso', 'Cartão atualizado com sucesso');
+        carregarCartoes(); // Atualiza a lista de cartões após a atualização
+        setEditModalVisible(false); // Oculta o modal de edição
+      } else {
+        Alert.alert('Erro', data.message || 'Não foi possível atualizar o cartão');
+      }
+    } catch (error) {
+      Alert.alert('Erro', 'Erro ao atualizar o cartão');
+    }
+  };
+
+
+  const [modalVisible, setModalVisible] = useState(false); // Estado para controlar a visibilidade do modal
+  const [cartaoSelecionado, setCartaoSelecionado] = useState(null); // Cartão selecionado para exibir detalhes
+
+  // Função para exibir detalhes de um cartão
+  const detalhesCartao = (cartao) => {
+    setCartaoSelecionado(cartao); // Define o cartão selecionado
+    setModalVisible(true); // Exibe o modal
   };
 
   // Função para alternar entre Crédito e Débito
@@ -153,44 +197,55 @@ const deletarCartao = (id) => {
       <View style={styles.pagamentos}>
         <Text style={styles.pagamentosTxt}>Formas de pagamento</Text>
 
-
-
         {formVisible && (
-          <View>
-            <TextInput
-              style={styles.input}
-              placeholder="Nome do Cartão"
-              value={novoCartao.name}
-              onChangeText={(text) => setNovoCartao({ ...novoCartao, name: text })}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Número do Cartão"
-              value={formatarNumeroCartao(novoCartao.number)}
-              onChangeText={(text) => setNovoCartao({ ...novoCartao, number: text })}
-              keyboardType="numeric"
-            />
+          <Modal
+            transparent={true}
+            animationType="fade"
+            visible={formVisible}
+            onRequestClose={() => setFormVisible(false)}
+          >
+            <View style={styles.modalOverlayAdd}>
+              <View style={styles.pagamentosAdd}>
+                <TextInput
+                  style={styles.inputAdd}
+                  placeholder="Nome do Cartão"
+                  value={novoCartao.name}
+                  onChangeText={(text) => setNovoCartao({ ...novoCartao, name: text })}
+                />
+                <TextInput
+                  style={styles.inputAdd}
+                  placeholder="Número do Cartão"
+                  value={formatarNumeroCartao(novoCartao.number)}
+                  onChangeText={(text) => setNovoCartao({ ...novoCartao, number: text })}
+                  keyboardType="numeric"
+                />
 
-            
-            {/* Campo para exibir a bandeira do cartão */}
-            <View style={styles.bandeiraContainer}>
-              <Text style={styles.bandeiraText}>
-                Bandeira: {determinarBandeira(novoCartao.number)}
-              </Text>
+                {/* Campo para exibir a bandeira do cartão */}
+                <View style={styles.bandeiraContainer}>
+                  <Text style={styles.bandeiraText}>
+                    Bandeira: {determinarBandeira(novoCartao.number)}
+                  </Text>
+                </View>
+
+                {/* Toggle para Crédito/Débito */}
+                <TouchableOpacity style={styles.toggleButton} onPress={alternarTipoCartao}>
+                  <Text style={styles.toggleText}>
+                    {novoCartao.is_credit ? 'Crédito' : 'Débito'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.addButton} onPress={adicionarCartao}>
+                  <Text style={styles.buttonText}>Adicionar Cartão</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.closeButton} onPress={() => setFormVisible(false)}>
+                  <Text style={styles.buttonText}>Fechar</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-
-            {/* Toggle para Crédito/Débito */}
-            <TouchableOpacity style={styles.toggleButton} onPress={alternarTipoCartao}>
-              <Text style={styles.toggleText}>
-                {novoCartao.is_credit ? 'Crédito' : 'Débito'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.addButton} onPress={adicionarCartao}>
-              <Text style={styles.buttonText}>Adicionar Cartão</Text>
-            </TouchableOpacity>
-          </View>
+          </Modal>
         )}
+
         <TouchableOpacity style={styles.showFormButton} onPress={() => setFormVisible(!formVisible)}>
           <Image
             source={formVisible
@@ -209,19 +264,90 @@ const deletarCartao = (id) => {
                 {item.number.slice(0, 4)} **** **** {item.number.slice(-4)} {item.brand}
               </Text>
               <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.actionButton} onPress={() => editarCartao(item.id)}>
+                <TouchableOpacity style={styles.actionButton} onPress={() => editarCartao(item)}>
                   <Image source={require('../assets/botoes/edit.png')} style={styles.botoesImg} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionButton} onPress={() => detalhesCartao(item.id)}>
+                <TouchableOpacity style={styles.actionButton} onPress={() => detalhesCartao(item)}>
                   <Image source={require('../assets/botoes/view.png')} style={styles.botoesImg} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.actionButton} onPress={() => deletarCartao(item.id)}>
                   <Image source={require('../assets/botoes/delete.png')} style={styles.botoesImg} />
-                </TouchableOpacity>                
+                </TouchableOpacity>
               </View>
             </View>
           )}
+
+
         />
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              {cartaoSelecionado && (
+                <>
+                  <Text style={styles.modalTitle}>Detalhes do Cartão</Text>
+                  <Text style={styles.modalText}>Nome: {cartaoSelecionado.name}</Text>
+                  <Text style={styles.modalText}>Número: {formatarNumeroCartao(cartaoSelecionado.number)}</Text>
+                  <Text style={styles.modalText}>Bandeira: {cartaoSelecionado.brand}</Text>
+                  <Text style={styles.modalText}>Tipo: {cartaoSelecionado.is_credit ? 'Crédito' : 'Débito'}</Text>
+                  <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                    <Text style={styles.buttonText}>Fechar</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
+        <Modal
+          visible={editModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setEditModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              {cartaoEmEdicao && (
+                <>
+                  <Text style={styles.modalTitle}>Editar Cartão</Text>
+                  <TextInput
+                    style={styles.inputEditCartao}
+                    placeholder="Nome do Cartão"
+                    value={cartaoEmEdicao.name}
+                    onChangeText={(text) => setCartaoEmEdicao({ ...cartaoEmEdicao, name: text })}
+                  />
+                  <TextInput
+                    style={styles.inputEditCartao}
+                    placeholder="Número do Cartão"
+                    value={formatarNumeroCartao(cartaoEmEdicao.number)}
+                    onChangeText={(text) => setCartaoEmEdicao({ ...cartaoEmEdicao, number: text })}
+                    keyboardType="numeric"
+                  />
+                  <View style={styles.bandeiraContainer}>
+                    <Text style={styles.bandeiraText}>
+                      Bandeira: {determinarBandeira(cartaoEmEdicao.number)}
+                    </Text>
+                  </View>
+                  <TouchableOpacity style={styles.toggleButtonEdit} onPress={() => setCartaoEmEdicao({ ...cartaoEmEdicao, is_credit: !cartaoEmEdicao.is_credit })}>
+                    <Text style={styles.toggleText}>
+                      {cartaoEmEdicao.is_credit ? 'Crédito' : 'Débito'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.addButtonEdit} onPress={atualizarCartao}>
+                    <Text style={styles.buttonText}>Atualizar Cartão</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.closeButton} onPress={() => setEditModalVisible(false)}>
+                    <Text style={styles.buttonText}>Fechar</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
+
       </View>
     </View>
   );
@@ -230,17 +356,16 @@ const deletarCartao = (id) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: "100%",
+    width: '100%',
     justifyContent: 'flex-start',
     alignItems: 'center',
     borderColor: 'green',
     borderWidth: 1,
   },
   pagamentos: {
-    width: "90%",
-    height: "90%",
-    marginVertical: '2%',
-    padding: '2%',
+    width: width * 0.9,
+    height: height * 0.42,
+    padding: width * 0.02,
     backgroundColor: '#1E062B',
     borderRadius: 25,
     borderColor: '#FAFF00',
@@ -248,83 +373,155 @@ const styles = StyleSheet.create({
   },
   pagamentosTxt: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: width * 0.05,
     textAlign: 'center',
-    marginBottom: '5%',
+    marginBottom: height * 0.05,
   },
   cartaoContainer: {
     backgroundColor: '#FFF6D5',
     borderRadius: 15,
-    padding: 10,
-    marginBottom: 10,
+    padding: width * 0.02,
+    marginBottom: height * 0.01,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   cartaoText: {
     color: 'black',
-    fontSize: 16,
+    fontSize: width * 0.04,
     flex: 1,
   },
   buttonContainer: {
     flexDirection: 'row',
   },
   actionButton: {
-    marginHorizontal: '1%',
+    marginHorizontal: width * 0.01,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: width * 0.04,
     textAlign: 'center',
   },
   botoesImg: {
-    width: 45,
-    height: 45,
+    width: width * 0.12,
+    height: width * 0.12,
   },
   input: {
-    height: 40,
+    height: height * 0.05,
     borderColor: '#FFF500',
     borderWidth: 1,
     backgroundColor: '#D9D9D9',
     borderRadius: 5,
-    marginBottom: 10,
-    paddingHorizontal: 10,
+    marginBottom: height * 0.01,
+    paddingHorizontal: width * 0.02,
+  },
+  inputEditCartao: {
+    width: width * 0.7,
+    height: height * 0.07,
+    borderColor: '#FFF500',
+    borderWidth: 1,
+    backgroundColor: '#D9D9D9',
+    borderRadius: 5,
+    marginBottom: height * 0.01,
+    paddingHorizontal: width * 0.02,
   },
   addButton: {
     backgroundColor: '#4CAF50',
-    paddingVertical: 10,
+    paddingVertical: height * 0.02,
     borderRadius: 5,
-    marginBottom: 20,
+    marginBottom: height * 0.02,
+  },
+  addButtonEdit: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: height * 0.02,
+    borderRadius: 5,
+    width: "55%"
   },
   showFormButton: {
- //   alignItems: "flex-end",
-    marginBottom: 10,
+    marginBottom: height * 0.01,
     position: 'absolute',
-    left: "90%",
-    bottom: "90%",
+    left: width * 0.73,
+    bottom: height * 0.33,
   },
   botoesImg2: {
-    width: 60,
-    height: 60,
+    width: width * 0.15,
+    height: width * 0.15,
   },
   toggleButton: {
     backgroundColor: '#D9D9D9',
-    paddingVertical: 10,
+    paddingVertical: height * 0.02,
     borderRadius: 5,
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: height * 0.01,
+  },
+  toggleButtonEdit: {
+    width: "50%",
+    backgroundColor: '#D9D9D9',
+    paddingVertical: height * 0.02,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: height * 0.05,
   },
   toggleText: {
     color: 'black',
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
   bandeiraContainer: {
-    marginBottom: 10,
+    marginBottom: height * 0.01,
   },
   bandeiraText: {
-    color: '#fff',
-    fontSize: 16,
+    color: 'gold',
+    fontSize: width * 0.04,
     fontWeight: 'bold',
+  },
+  ///////////
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  },
+  modalContent: {
+    width: width * 0.8,
+    padding: 20,
+    backgroundColor: '#3B1B4D',
+    borderWidth: 1,
+    borderColor: "#FFF500",
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    color: "#fff"
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: "#fff"
+  },
+  closeButton: {
+    marginTop: 16,
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 4,
+  },
+  modalOverlayAdd: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+  },
+  inputAdd: {
+    width: width * 0.7,
+    height: height * 0.07,
+    borderColor: '#FFF500',
+    borderWidth: 1,
+    backgroundColor: '#D9D9D9',
+    borderRadius: 5,
+    marginBottom: height * 0.01,
+    paddingHorizontal: width * 0.02,
   },
 });
 

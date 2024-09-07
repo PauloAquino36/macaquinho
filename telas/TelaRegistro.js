@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     color: "#1E1E1E",
     borderColor: '#FFF500',
     backgroundColor: '#D9D9D9',
-    borderWidth: 5,
+    borderWidth: 2,
     marginBottom: height * 0.015,
     paddingHorizontal: width * 0.02,
     borderRadius: width * 0.2,
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: width * 0.2,
-    borderWidth: 5,
+    borderWidth: 3,
     zIndex: 2,
   },
   registrarTxt: {

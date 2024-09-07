@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     color: "#1E1E1E",
     borderColor: '#FFF500',
     backgroundColor: '#D9D9D9',
-    borderWidth: 5,
+    borderWidth: 2,
     marginBottom: 20,
     paddingHorizontal: 10,
     borderRadius: 79,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: width * 0.2,
-    borderWidth: 5,
+    borderWidth: 2,
     zIndex: 2,
   },
   entrarTxt: {

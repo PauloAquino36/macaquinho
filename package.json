@@ -17,11 +17,11 @@
     "expo-font": "~12.0.10",
     "expo-status-bar": "~1.12.1",
     "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-native": "0.74.5",
     "react-native-svg": "15.2.0",
-    "react-native-wheel-of-fortune": "^1.5.4",
-    "react-dom": "18.2.0",
-    "react-native-web": "~0.19.10"
+    "react-native-web": "~0.19.10",
+    "react-native-wheel-of-fortune": "^1.5.4"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0"
