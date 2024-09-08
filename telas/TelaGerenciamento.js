@@ -43,7 +43,7 @@ const TelaGerenciamento = () => {
           phone_number: phoneNumber,
           email: email,
           birth_date: user.user.birth_date,
-          balance: 100.00,
+          //balance: 100.00,
         }),
       });
 

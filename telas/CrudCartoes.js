@@ -38,14 +38,16 @@ const CrudCartoes = () => {
   const formatarNumeroCartao = (numero) => {
     // Remove todos os caracteres que não são números
     const numeros = numero.replace(/\D/g, '');
-
+  
+    // Limita o número a 16 dígitos
+    const numeroLimitado = numeros.slice(0, 12);
+  
     // Adiciona hífens a cada quatro dígitos
-    const formato = numeros.replace(/(\d{4})(?=\d)/g, '$1-');
-
+    const formato = numeroLimitado.replace(/(\d{4})(?=\d)/g, '$1-');
+  
     return formato;
   };
 
-  // Função para carregar os cartões de crédito do usuário
   const carregarCartoes = () => {
     if (user && user.credit_cards) {
       setCartoes(user.credit_cards); // Carrega os cartões do usuário
@@ -56,15 +58,8 @@ const CrudCartoes = () => {
 
   const adicionarCartao = async () => {
     const numeroLimpo = novoCartao.number.replace(/\D/g, '');
-
-    if (!novoCartao.is_credit && numeroLimpo.length !== 12) {
-      Alert.alert('Erro', 'O número do cartão deve ter 12 dígitos.');
-      return;
-    }
-
-    // Determina a bandeira do cartão
     const bandeira = determinarBandeira(numeroLimpo);
-
+  
     try {
       const response = await fetch('https://treinamentoapi.codejr.com.br/api/paulo/creditCard', {
         method: 'POST',
@@ -75,19 +70,35 @@ const CrudCartoes = () => {
         body: JSON.stringify({
           ...novoCartao,
           brand: bandeira,
-          user_id: user.user.id
+          user_id: user.user.id,
         }),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
         Alert.alert('Sucesso', 'Cartão adicionado com sucesso');
-        carregarCartoes(); // Atualiza a lista de cartões após a adição
-        setNovoCartao({ name: '', number: '', is_credit: true }); // Reseta os campos
-        setFormVisible(false); // Oculta o formulário após a adição
-        atualizarCartao(); // Chama a função atualizaCartao
-        
+  
+        // Cria um novo cartão com os dados recebidos e atribui o ID retornado
+        const novoCartaoComId = {
+          ...novoCartao,
+          id: data.id, // Usar o ID retornado pela API
+          brand: bandeira,
+        };
+  
+        // Atualiza a lista de cartões sem o cartão deletado e adiciona o novo cartão
+        const cartoesAtualizados = [...user.credit_cards, novoCartaoComId];
+  
+        updateUser({
+          user: user.user, // Mantém as informações do usuário
+          credit_cards: cartoesAtualizados, // Atualiza a lista de cartões com o novo cartão
+        });
+  
+        carregarCartoes(); // Função para recarregar a lista de cartões
+  
+        // Limpa o formulário e oculta o modal
+        setNovoCartao({ name: '', number: '', is_credit: true });
+        setFormVisible(false);
       } else {
         Alert.alert('Erro', data.message || 'Não foi possível adicionar o cartão');
       }
@@ -95,9 +106,8 @@ const CrudCartoes = () => {
       Alert.alert('Erro', 'Erro ao adicionar o cartão');
     }
   };
-
-
-  // Função para deletar um cartão
+  
+  
   const deletarCartao = (id) => {
     Alert.alert(
       'Confirmar Exclusão',
@@ -114,15 +124,25 @@ const CrudCartoes = () => {
               const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${id}`, {
                 method: 'DELETE',
               });
-
+  
               if (response.ok) {
                 Alert.alert('Sucesso', 'Cartão deletado com sucesso');
-                carregarCartoes(); // Atualiza a lista de cartões após a exclusão
+                
+                // Remove o cartão deletado da lista localmente
+                const cartoesAtualizados = user.credit_cards.filter(cartao => cartao.id !== id);
+                
+                updateUser({
+                  user: user.user, // Mantém as informações do usuário
+                  credit_cards: cartoesAtualizados, // Atualiza a lista de cartões sem o cartão deletado
+                });
+  
+                carregarCartoes(); // Função para recarregar a lista de cartões
               } else {
                 const data = await response.json();
                 Alert.alert('Erro', data.message || 'Não foi possível deletar o cartão');
               }
             } catch (error) {
+              console.error('Erro ao deletar o cartão:', error);
               Alert.alert('Erro', 'Erro ao deletar o cartão');
             }
           },
@@ -131,7 +151,6 @@ const CrudCartoes = () => {
       { cancelable: true }
     );
   };
-
 
   const [editModalVisible, setEditModalVisible] = useState(false); // Estado para controlar a visibilidade do modal de edição
   const [cartaoEmEdicao, setCartaoEmEdicao] = useState(null); // Cartão sendo editado
@@ -143,10 +162,6 @@ const CrudCartoes = () => {
   };
 
   const atualizarCartao = async () => {
-    if (!cartaoEmEdicao || !cartaoEmEdicao.number) {
-      Alert.alert('Erro', 'O número do cartão está indefinido');
-      return;
-    }
   
     const numeroLimpo = cartaoEmEdicao.number.replace(/\D/g, '');
     const bandeira = determinarBandeira(numeroLimpo);
@@ -279,7 +294,7 @@ const CrudCartoes = () => {
         </TouchableOpacity>
         <FlatList
           data={cartoes}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
           renderItem={({ item }) => (
             <View style={styles.cartaoContainer}>
               <Text style={styles.cartaoText}>
@@ -308,17 +323,21 @@ const CrudCartoes = () => {
           onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+            <View style={styles.modalContentView}>
               {cartaoSelecionado && (
                 <>
-                  <Text style={styles.modalTitle}>Detalhes do Cartão</Text>
-                  <Text style={styles.modalText}>Nome: {cartaoSelecionado.name}</Text>
-                  <Text style={styles.modalText}>Número: {formatarNumeroCartao(cartaoSelecionado.number)}</Text>
-                  <Text style={styles.modalText}>Bandeira: {cartaoSelecionado.brand}</Text>
-                  <Text style={styles.modalText}>Tipo: {cartaoSelecionado.is_credit ? 'Crédito' : 'Débito'}</Text>
-                  <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                    <Text style={styles.buttonText}>Fechar</Text>
-                  </TouchableOpacity>
+                  <Text style={styles.modalTextNome}>{cartaoSelecionado.name}</Text>
+                  <Text style={styles.modalTextNumero}>{formatarNumeroCartao(cartaoSelecionado.number)}</Text>
+                  <View style={styles.cartaoViewText}>
+                    <Text style={styles.modalText2}>Cartao de {cartaoSelecionado.is_credit ? 'Crédito' : 'Débito'}</Text>
+                    <Text style={styles.modalText2}>{cartaoSelecionado.brand}</Text>
+                  </View>
+                  
+                  <View style={styles.closeButtonView}>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                      <Text style={styles.buttonText}>Fechar</Text>
+                    </TouchableOpacity>
+                  </View>
                 </>
               )}
             </View>
@@ -503,6 +522,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
   },
+  modalContentView: {
+    width: width * 0.9,
+    height: height * 0.25,
+    padding: 20,
+    backgroundColor: '#3B1B4D',
+    borderWidth: 1,
+    borderColor: "#FFF500",
+    borderRadius: 8,
+    alignItems: 'flex-start',
+    justifyContent: 'center'
+  },
   modalContent: {
     width: width * 0.8,
     padding: 20,
@@ -523,11 +553,36 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: "#fff"
   },
+  modalText2: {
+    fontSize: 16,
+    marginBottom: "5%",
+    marginRight: "20%",
+    color: "#fff"
+  },
+  modalTextNome: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: "#fff"
+  },
+  modalTextNumero: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: "#fff"
+  },
+  cartaoViewText: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
   closeButton: {
-    marginTop: 16,
+    marginTop: "1%",
     backgroundColor: 'red',
     padding: 10,
     borderRadius: 4,
+  },
+  closeButtonView: {
+    marginLeft: "75%"
   },
   modalOverlayAdd: {
     flex: 1,
