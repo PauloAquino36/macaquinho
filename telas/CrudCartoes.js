@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert, FlatList, TextInput, Image, Dimensions, Modal } from 'react-native';
 import { useAuth } from '../AuthContext.js';
-import Navbar from './Navbar.js';
 
 const { width, height } = Dimensions.get('window');
 
@@ -38,13 +37,13 @@ const CrudCartoes = () => {
   const formatarNumeroCartao = (numero) => {
     // Remove todos os caracteres que não são números
     const numeros = numero.replace(/\D/g, '');
-  
+
     // Limita o número a 16 dígitos
     const numeroLimitado = numeros.slice(0, 12);
-  
+
     // Adiciona hífens a cada quatro dígitos
     const formato = numeroLimitado.replace(/(\d{4})(?=\d)/g, '$1-');
-  
+
     return formato;
   };
 
@@ -59,7 +58,7 @@ const CrudCartoes = () => {
   const adicionarCartao = async () => {
     const numeroLimpo = novoCartao.number.replace(/\D/g, '');
     const bandeira = determinarBandeira(numeroLimpo);
-  
+
     try {
       const response = await fetch('https://treinamentoapi.codejr.com.br/api/paulo/creditCard', {
         method: 'POST',
@@ -73,29 +72,29 @@ const CrudCartoes = () => {
           user_id: user.user.id,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         Alert.alert('Sucesso', 'Cartão adicionado com sucesso');
-  
+
         // Cria um novo cartão com os dados recebidos e atribui o ID retornado
         const novoCartaoComId = {
           ...novoCartao,
           id: data.id, // Usar o ID retornado pela API
           brand: bandeira,
         };
-  
+
         // Atualiza a lista de cartões sem o cartão deletado e adiciona o novo cartão
         const cartoesAtualizados = [...user.credit_cards, novoCartaoComId];
-  
+
         updateUser({
           user: user.user, // Mantém as informações do usuário
           credit_cards: cartoesAtualizados, // Atualiza a lista de cartões com o novo cartão
         });
-  
+
         carregarCartoes(); // Função para recarregar a lista de cartões
-  
+
         // Limpa o formulário e oculta o modal
         setNovoCartao({ name: '', number: '', is_credit: true });
         setFormVisible(false);
@@ -106,8 +105,8 @@ const CrudCartoes = () => {
       Alert.alert('Erro', 'Erro ao adicionar o cartão');
     }
   };
-  
-  
+
+
   const deletarCartao = (id) => {
     Alert.alert(
       'Confirmar Exclusão',
@@ -124,18 +123,18 @@ const CrudCartoes = () => {
               const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${id}`, {
                 method: 'DELETE',
               });
-  
+
               if (response.ok) {
                 Alert.alert('Sucesso', 'Cartão deletado com sucesso');
-                
+
                 // Remove o cartão deletado da lista localmente
                 const cartoesAtualizados = user.credit_cards.filter(cartao => cartao.id !== id);
-                
+
                 updateUser({
                   user: user.user, // Mantém as informações do usuário
                   credit_cards: cartoesAtualizados, // Atualiza a lista de cartões sem o cartão deletado
                 });
-  
+
                 carregarCartoes(); // Função para recarregar a lista de cartões
               } else {
                 const data = await response.json();
@@ -162,11 +161,11 @@ const CrudCartoes = () => {
   };
 
   const atualizarCartao = async () => {
-  
+
     const numeroLimpo = cartaoEmEdicao.number.replace(/\D/g, '');
     const bandeira = determinarBandeira(numeroLimpo);
     console.log("Atualizando o cartão com ID: ", cartaoEmEdicao.id);
-  
+
     try {
       const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/creditCard/${cartaoEmEdicao.id}`, {
         method: 'PUT',
@@ -182,23 +181,23 @@ const CrudCartoes = () => {
           user_id: user.user.id,
         }),
       });
-  
+
       const data = await response.json();
       console.log("Resposta da API:", data);
-  
+
       if (response.ok) {
         Alert.alert('Sucesso', 'Cartão atualizado com sucesso');
-  
+
         const cartoesAtualizados = user.credit_cards.map(cartao =>
           cartao.id === cartaoEmEdicao.id ? { ...cartaoEmEdicao, brand: bandeira } : cartao
         );
         console.log("Cartões atualizados localmente:", cartoesAtualizados);
-  
+
         updateUser({
           user: user.user, // Mantém as informações do usuário
           credit_cards: cartoesAtualizados, // Atualiza a lista de cartões
         });
-  
+
         setEditModalVisible(false); // Fecha o modal de edição
       } else {
         Alert.alert('Erro', data.message || 'Não foi possível atualizar o cartão');
@@ -326,13 +325,13 @@ const CrudCartoes = () => {
             <View style={styles.modalContentView}>
               {cartaoSelecionado && (
                 <>
-                  <Text style={styles.modalTextNome}>{cartaoSelecionado.name}</Text>
+                  <Text style={styles.modalTextNome}>{cartaoSelecionado.name.slice(0, 25)}</Text>
                   <Text style={styles.modalTextNumero}>{formatarNumeroCartao(cartaoSelecionado.number)}</Text>
                   <View style={styles.cartaoViewText}>
                     <Text style={styles.modalText2}>Cartao de {cartaoSelecionado.is_credit ? 'Crédito' : 'Débito'}</Text>
                     <Text style={styles.modalText2}>{cartaoSelecionado.brand}</Text>
                   </View>
-                  
+
                   <View style={styles.closeButtonView}>
                     <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
                       <Text style={styles.buttonText}>Fechar</Text>
@@ -377,12 +376,16 @@ const CrudCartoes = () => {
                       {cartaoEmEdicao.is_credit ? 'Crédito' : 'Débito'}
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.addButtonEdit} onPress={atualizarCartao}>
-                    <Text style={styles.buttonText}>Atualizar Cartão</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.closeButton} onPress={() => setEditModalVisible(false)}>
-                    <Text style={styles.buttonText}>Fechar</Text>
-                  </TouchableOpacity>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width:"100%" }}>
+                    <TouchableOpacity style={styles.addButtonEdit} onPress={atualizarCartao}>
+                      <Text style={styles.buttonText}>Atualizar Cartão</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setEditModalVisible(false)}>
+                      <Text style={styles.buttonText}>Fechar</Text>
+                    </TouchableOpacity>
+                  </View>
+
+
                 </>
               )}
             </View>
