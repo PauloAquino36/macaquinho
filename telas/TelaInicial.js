@@ -11,7 +11,7 @@ const games = [
   { id: '3', src: require('../assets/jogos/ppt.png') },
   { id: '4', src: require('../assets/jogos/cassino.png') },
   { id: '5', src: require('../assets/jogos/foguete.png') },
-  { id: '6', src: require('../assets/jogos/ppt.png') },
+  { id: '6', src: require('../assets/jogos/roleta.png') },
 ];
 
 const TelaInicial = () => {
@@ -27,12 +27,14 @@ const TelaInicial = () => {
       setSelectedItemId(itemId);
       switch (itemId) {
         case '1':
-            navigation.navigate('Roleta');
+            //navigation.navigate('Roleta');
+            Alert.alert('Jogo em manutenção!', 'mais novidades em Breve! Aproveite o Pedra, Papel, tesoura.');
           break;
           case '3':
             navigation.navigate('PedraPapelTesoura');
           break;
         default:
+          Alert.alert('Jogo em manutenção!', 'mais novidades em Breve! Aproveite o Pedra, Papel, tesoura.');
           break;
       }
     } else {

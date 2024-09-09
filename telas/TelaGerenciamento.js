@@ -170,8 +170,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: '#6E1385',
-    borderColor: "white",
-    borderWidth: 1,
+    //borderColor: "white",
+    //borderWidth: 1,
   },
   conta: {
     width: width * 0.9,
@@ -181,8 +181,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: width * 0.01,
     borderRadius: 25,
-    borderColor: "red",
-    borderWidth: 1,
+    //borderColor: "red",
+    //borderWidth: 1,
   },
   DetalhesConta: {
     width: '100%',
@@ -198,8 +198,8 @@ const styles = StyleSheet.create({
     marginTop: height * 0.05,
     width: width * 0.85,
     height: height * 0.1,
-    borderColor: "green",
-    borderWidth: 1,
+    //borderColor: "green",
+    //borderWidth: 1,
   },
   editUser: {
     zIndex: 2,

@@ -403,8 +403,8 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    borderColor: 'green',
-    borderWidth: 1,
+    //borderColor: 'green',
+    //borderWidth: 1,
   },
   pagamentos: {
     width: width * 0.9,
