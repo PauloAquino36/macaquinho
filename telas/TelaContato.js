@@ -30,7 +30,7 @@ const TelaContato = () => {
         <View style={styles.container}>
         <Image source={require('../assets/logo.png')} style={styles.logo}></Image>
 
-        <Text style={styles.contato}>Entre em contato consoco atraves de nosso:</Text>
+        <Text style={styles.contato}>Entre em contato conosco atraves de nosso:</Text>
         <View style={styles.detalhes}>
             <View style={styles.botoes2}>
                 <TouchableOpacity style={styles.botao2} onPress={() => Linking.openURL('https://www.instagram.com/codejr?igsh=ejNlZXB5aW0ydW9o')}>

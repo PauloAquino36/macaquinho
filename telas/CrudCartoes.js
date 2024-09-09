@@ -248,14 +248,12 @@ const CrudCartoes = () => {
                   keyboardType="numeric"
                 />
 
-                {/* Campo para exibir a bandeira do cartão */}
                 <View style={styles.bandeiraContainer}>
                   <Text style={styles.bandeiraText}>
                     Bandeira: {determinarBandeira(novoCartao.number)}
                   </Text>
                 </View>
 
-                {/* Toggle para Crédito/Débito */}
                 <TouchableOpacity style={styles.toggleButton} onPress={alternarTipoCartao}>
                   <Text style={styles.toggleText}>
                     {novoCartao.is_credit ? 'Crédito' : 'Débito'}
@@ -400,7 +398,7 @@ const styles = StyleSheet.create({
   },
   pagamentos: {
     width: width * 0.9,
-    height: height * 0.42,
+    height: height * 0.4,
     padding: width * 0.02,
     backgroundColor: '#1E062B',
     borderRadius: 25,

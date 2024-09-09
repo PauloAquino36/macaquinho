@@ -48,14 +48,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     height: height * 0.1,
     alignItems: 'flex-end',
-    marginBottom: "1%"
+    marginBottom: "2%"
     //
     //borderColor: "white",
     //borderWidth: 1,
   },
   navButtonHome: {
-    height: width * 0.27,
-    width: width * 0.27,  
+    height: width >= 768 ? width * 0.17 : width * 0.27,
+    width: width >= 768 ? width * 0.17 : width * 0.27,  
     position: "relative",
     bottom: height * 0.0001,
     marginHorizontal: width * 0.05,
@@ -64,8 +64,8 @@ const styles = StyleSheet.create({
     //borderWidth: 1,
   },
   navButton: {
-    height: width * 0.2,
-    width: width * 0.2,   
+    height: width >= 768 ? width * 0.15 : width * 0.2,
+    width: width >= 768 ? width * 0.15 : width * 0.2,    
     //
     //borderColor: "green",
     //borderWidth: 1,
