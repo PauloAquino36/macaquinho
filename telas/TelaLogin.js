@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   detalhes: {
     width: width * 0.9,
     height: height * 0.4,
-    margin: width * 0.1,  // 10% da largura da tela
+    margin: width * 0.1,
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: width * 0.01,
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     fontSize: width * 0.1,
   },
   registrar: {
-    fontSize: width * 0.065,  // Ajuste dinâmico da fonte
+    fontSize: width * 0.065,
     marginHorizontal: width * 0.2,
     position: 'absolute',
     top: height * 0.3,
@@ -155,8 +155,8 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Cor de sobreposição escura
-    zIndex: 1, // Garante que o overlay fique acima do conteúdo
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    zIndex: 1,
   },
 });
 

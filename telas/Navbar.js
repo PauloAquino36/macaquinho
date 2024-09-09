@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   navbar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: height * 0.1,  // 10% da altura da tela
+    height: height * 0.1,
     alignItems: 'flex-end',
     marginBottom: "1%"
     //
@@ -54,18 +54,18 @@ const styles = StyleSheet.create({
     //borderWidth: 1,
   },
   navButtonHome: {
-    height: width * 0.27,  // ajuste proporcional para 100px
-    width: width * 0.27,    // ajuste proporcional para 100px
+    height: width * 0.27,
+    width: width * 0.27,  
     position: "relative",
-    bottom: height * 0.0001,  // 5% da altura da tela
-    marginHorizontal: width * 0.05,  // 5% da largura da tela
+    bottom: height * 0.0001,
+    marginHorizontal: width * 0.05,
     //
     //borderColor: "green",
     //borderWidth: 1,
   },
   navButton: {
-    height: width * 0.2,  // ajuste proporcional para 75px
-    width: width * 0.2,     // ajuste proporcional para 75px
+    height: width * 0.2,
+    width: width * 0.2,   
     //
     //borderColor: "green",
     //borderWidth: 1,

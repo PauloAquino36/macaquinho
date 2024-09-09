@@ -18,17 +18,15 @@ const TelaGerenciamento = () => {
 
   const [editModalVisible, setEditModalVisible] = useState(false);
 
-  // Função para abrir o modal de edição
   const openEditModal = () => {
     setEditModalVisible(true);
   };
 
-  // Função para fechar o modal de edição
   const closeEditModal = () => {
     setEditModalVisible(false);
   };
 
-  const { updateUser } = useAuth(); // Importar a função updateUser do AuthContext
+  const { updateUser } = useAuth();
 
   const handleUpdate = async () => {
     try {
@@ -52,7 +50,6 @@ const TelaGerenciamento = () => {
       if (response.ok) {
         Alert.alert('Sucesso', 'Dados atualizados com sucesso');
 
-        // Atualize o contexto com os novos dados
         updateUser({
           name: name,
           phone_number: phoneNumber,
@@ -192,7 +189,7 @@ const styles = StyleSheet.create({
     borderColor: "#FAFF00",
     borderWidth: 1,
     zIndex: 1,
-    marginBottom: height * 0.01, // Espaçamento entre detalhes e botão de edição
+    marginBottom: height * 0.01,
   },
   logo: {
     marginTop: height * 0.05,

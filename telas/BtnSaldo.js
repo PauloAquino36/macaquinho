@@ -12,24 +12,19 @@ const BtnSaldo = () => {
   const [cartoes, setCartoes] = useState([]);
 
   const formatValue = (text) => {
-    // Remove caracteres não numéricos
     const cleanedText = text.replace(/[^0-9]/g, '');
   
-    // Se o texto estiver vazio ou contiver apenas um dígito, retorna o valor inicial formatado
     if (cleanedText.length === 0) {
       return '0.00';
     } else if (cleanedText.length === 1) {
       return `0.0${cleanedText}`;
     }
   
-    // Adiciona o ponto decimal, movendo o último número digitado para a direita do penúltimo
     let integerPart = cleanedText.slice(0, cleanedText.length - 2);
     const decimalPart = cleanedText.slice(cleanedText.length - 2);
   
-    // Remove zeros à esquerda da parte inteira, exceto quando a parte inteira é '0'
     integerPart = integerPart ? parseInt(integerPart, 10).toString() : '0';
   
-    // Formata com duas casas decimais
     return `${integerPart}.${decimalPart}`;
   };
   

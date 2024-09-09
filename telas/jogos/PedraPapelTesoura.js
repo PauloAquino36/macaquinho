@@ -22,7 +22,19 @@ const PedraPapelTesoura = () => {
         { name: 'Tesoura', image: require('../../assets/jogos/btnTesoura.png') },
     ];
 
-    // Iniciar a partida após a aposta
+    const formatValue = (text) => {
+        const cleanedText = text.replace(/[^0-9]/g, '');
+        if (cleanedText.length === 0) {
+          return '0.00';
+        } else if (cleanedText.length === 1) {
+          return `0.0${cleanedText}`;
+        }
+        let integerPart = cleanedText.slice(0, cleanedText.length - 2);
+        const decimalPart = cleanedText.slice(cleanedText.length - 2);
+        integerPart = integerPart ? parseInt(integerPart, 10).toString() : '0';
+        return `${integerPart}.${decimalPart}`;
+      };
+
     const startGame = () => {
         const valorAposta = parseFloat(betAmount);
         if (isNaN(valorAposta) || valorAposta <= 0) {
@@ -94,7 +106,7 @@ const PedraPapelTesoura = () => {
 
     const AtualizaSaldo = async (valor) => {
         let saldo = user.user.balance;
-        let valorNumerico = parseFloat(valor); // Converte para número
+        let valorNumerico = parseFloat(valor);
 
         try {
             const response = await fetch(`https://treinamentoapi.codejr.com.br/api/paulo/user/${user.user.id}`, {
@@ -134,7 +146,7 @@ const PedraPapelTesoura = () => {
                             placeholder="Digite o valor da aposta"
                             keyboardType="numeric"
                             value={betAmount}
-                            onChangeText={(text) => setBetAmount(text)}
+                            onChangeText={(text) => setBetAmount(formatValue(text))}
                         />
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <TouchableOpacity style={{ padding: 10, backgroundColor: "green", borderRadius: 20, width: "60%", alignItems: 'center', marginRight: "5%" }} onPress={startGame}>
@@ -324,7 +336,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo semi-transparente
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
     },
     modalContainer: {
         width: '80%',

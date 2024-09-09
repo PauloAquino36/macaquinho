@@ -14,7 +14,6 @@ const CrudCartoes = () => {
   });
   const [formVisible, setFormVisible] = useState(false); // Estado para controlar a visibilidade do formulário
 
-  // Função para determinar a bandeira do cartão com base no número
   const determinarBandeira = (numero) => {
 
     switch (true) {
@@ -35,10 +34,8 @@ const CrudCartoes = () => {
   };
 
   const formatarNumeroCartao = (numero) => {
-    // Remove todos os caracteres que não são números
     const numeros = numero.replace(/\D/g, '');
 
-    // Limita o número a 16 dígitos
     const numeroLimitado = numeros.slice(0, 12);
 
     // Adiciona hífens a cada quatro dígitos
@@ -95,7 +92,6 @@ const CrudCartoes = () => {
 
         carregarCartoes(); // Função para recarregar a lista de cartões
 
-        // Limpa o formulário e oculta o modal
         setNovoCartao({ name: '', number: '', is_credit: true });
         setFormVisible(false);
       } else {
@@ -154,7 +150,6 @@ const CrudCartoes = () => {
   const [editModalVisible, setEditModalVisible] = useState(false); // Estado para controlar a visibilidade do modal de edição
   const [cartaoEmEdicao, setCartaoEmEdicao] = useState(null); // Cartão sendo editado
 
-  // Função para abrir o modal de edição com os dados do cartão selecionado
   const editarCartao = (cartao) => {
     setCartaoEmEdicao(cartao);
     setEditModalVisible(true);
@@ -212,18 +207,15 @@ const CrudCartoes = () => {
   const [modalVisible, setModalVisible] = useState(false); // Estado para controlar a visibilidade do modal
   const [cartaoSelecionado, setCartaoSelecionado] = useState(null); // Cartão selecionado para exibir detalhes
 
-  // Função para exibir detalhes de um cartão
   const detalhesCartao = (cartao) => {
     setCartaoSelecionado(cartao); // Define o cartão selecionado
     setModalVisible(true); // Exibe o modal
   };
 
-  // Função para alternar entre Crédito e Débito
   const alternarTipoCartao = () => {
     setNovoCartao({ ...novoCartao, is_credit: !novoCartao.is_credit });
   };
 
-  // Carrega os cartões ao montar o componente
   useEffect(() => {
     carregarCartoes();
   }, [user]); // Adiciona `user` como dependência
@@ -285,8 +277,8 @@ const CrudCartoes = () => {
         <TouchableOpacity style={styles.showFormButton} onPress={() => setFormVisible(!formVisible)}>
           <Image
             source={formVisible
-              ? require('../assets/botoes/close.png') // Imagem quando o formulário está visível
-              : require('../assets/botoes/plus.png')   // Imagem quando o formulário não está visível
+              ? require('../assets/botoes/close.png')
+              : require('../assets/botoes/plus.png')
             }
             style={styles.botoesImg2}
           />
